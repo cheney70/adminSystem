@@ -5,6 +5,10 @@
             "Cheney\\Content\\": "src/"
         }
     },
+  "license": "MIT",
+    "require": {
+        "php": "^7.2.5|^8.0"        
+    },
     "authors": [
         {
             "name": "cheney",
