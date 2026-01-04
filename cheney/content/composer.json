@@ -1,0 +1,31 @@
+{
+    "name": "cheney/order",
+    "autoload": {
+        "psr-4": {
+            "Cheney\\Content\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "cheney",
+            "email": "cheney70@qq.com"
+        }
+    ],
+  "autoload-dev":{
+    "psr-4":{
+      "Cheney\\Content\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Cheney\\Content\\ContentServiceProvider"
+      ],
+      "aliases": {
+        "Debugbar": "Cheney\\Content\\Facade"
+      }
+    }
+  },
+    "require": {}
+
+}
