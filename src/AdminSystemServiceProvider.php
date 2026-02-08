@@ -3,6 +3,17 @@
 namespace Cheney\AdminSystem;
 
 use Illuminate\Support\ServiceProvider;
+use Cheney\AdminSystem\Services\AuthService;
+use Cheney\AdminSystem\Services\UserService;
+use Cheney\AdminSystem\Services\RoleService;
+use Cheney\AdminSystem\Services\PermissionService;
+use Cheney\AdminSystem\Services\MenuService;
+use Cheney\AdminSystem\Services\OperationLogService;
+use Cheney\AdminSystem\Models\Admin;
+use Cheney\AdminSystem\Models\Role;
+use Cheney\AdminSystem\Models\Permission;
+use Cheney\AdminSystem\Models\Menu;
+use Cheney\AdminSystem\Models\OperationLog;
 
 class AdminSystemServiceProvider extends ServiceProvider
 {
@@ -31,41 +42,41 @@ class AdminSystemServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton('admin.auth', function ($app) {
-            return new Services\AuthService(
-                $app->make(Models\Admin::class)
+            return new AuthService(
+                $app->make(Admin::class)
             );
         });
 
         $this->app->singleton('admin.user', function ($app) {
-            return new Services\UserService(
-                $app->make(Models\Admin::class),
-                $app->make(Models\Role::class)
+            return new UserService(
+                $app->make(Admin::class),
+                $app->make(Role::class)
             );
         });
 
         $this->app->singleton('admin.role', function ($app) {
-            return new Services\RoleService(
-                $app->make(Models\Role::class),
-                $app->make(Models\Permission::class)
+            return new RoleService(
+                $app->make(Role::class),
+                $app->make(Permission::class)
             );
         });
 
         $this->app->singleton('admin.permission', function ($app) {
-            return new Services\PermissionService(
-                $app->make(Models\Permission::class)
+            return new PermissionService(
+                $app->make(Permission::class)
             );
         });
 
         $this->app->singleton('admin.menu', function ($app) {
-            return new Services\MenuService(
-                $app->make(Models\Menu::class),
-                $app->make(Models\Permission::class)
+            return new MenuService(
+                $app->make(Menu::class),
+                $app->make(Permission::class)
             );
         });
 
         $this->app->singleton('admin.operation-log', function ($app) {
-            return new Services\OperationLogService(
-                $app->make(Models\OperationLog::class)
+            return new OperationLogService(
+                $app->make(OperationLog::class)
             );
         });
     }
