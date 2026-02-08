@@ -13,7 +13,7 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next)
     {
         try {
-            $admin = auth('api')->user();
+            $admin = auth('admin')->user();
             
             if (!$admin) {
                 return $this->unauthorized();

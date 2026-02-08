@@ -69,7 +69,7 @@ class MenuService
 
     public function userMenus()
     {
-        $admin = auth('api')->user();
+        $admin = auth('admin')->user();
         
         $permissionCodes = [];
         foreach ($admin->roles as $role) {

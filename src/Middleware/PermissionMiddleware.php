@@ -12,7 +12,7 @@ class PermissionMiddleware
 
     public function handle(Request $request, Closure $next, $permission)
     {
-        $admin = auth('api')->user();
+        $admin = auth('admin')->user();
         
         if (!$admin) {
             return $this->unauthorized();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Cheney\AdminSystem\Database\Seeders;
 
 use Cheney\AdminSystem\Models\Permission;
 use Illuminate\Database\Seeder;

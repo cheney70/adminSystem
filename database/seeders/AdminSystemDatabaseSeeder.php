@@ -4,12 +4,6 @@ namespace Cheney\AdminSystem\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Cheney\AdminSystem\Database\Seeders\AdminSeeder;
-use Cheney\AdminSystem\Database\Seeders\RoleSeeder;
-use Cheney\AdminSystem\Database\Seeders\MenuSeeder;
-use Cheney\AdminSystem\Database\Seeders\PermissionSeeder;
-use Cheney\AdminSystem\Database\Seeders\RoleAdminSeeder;
-use Cheney\AdminSystem\Database\Seeders\PermissionRoleSeeder;
 
 class AdminSystemDatabaseSeeder extends Seeder
 {

@@ -25,7 +25,7 @@ class OperationLogTest extends TestCase
 
     public function test_authenticated_admin_can_get_log_list()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -36,7 +36,7 @@ class OperationLogTest extends TestCase
 
     public function test_authenticated_admin_can_delete_log()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $log = OperationLog::factory()->create([
             'admin_id' => $this->admin->id,
@@ -55,7 +55,7 @@ class OperationLogTest extends TestCase
 
     public function test_authenticated_admin_can_get_statistics()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,

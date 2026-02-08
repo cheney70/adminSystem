@@ -25,7 +25,7 @@ class AdminTest extends TestCase
 
     public function test_authenticated_admin_can_get_admin_list()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -36,7 +36,7 @@ class AdminTest extends TestCase
 
     public function test_authenticated_admin_can_create_admin()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'username' => 'newadmin',
@@ -65,7 +65,7 @@ class AdminTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'username' => 'updateadmin',
@@ -92,7 +92,7 @@ class AdminTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -118,7 +118,7 @@ class AdminTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -141,7 +141,7 @@ class AdminTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,

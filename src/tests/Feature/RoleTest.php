@@ -25,7 +25,7 @@ class RoleTest extends TestCase
 
     public function test_authenticated_admin_can_get_role_list()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -36,7 +36,7 @@ class RoleTest extends TestCase
 
     public function test_authenticated_admin_can_create_role()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'name' => 'New Role',
@@ -63,7 +63,7 @@ class RoleTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'name' => 'Updated Role',
@@ -90,7 +90,7 @@ class RoleTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -116,7 +116,7 @@ class RoleTest extends TestCase
             'type' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,

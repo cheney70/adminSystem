@@ -12,8 +12,8 @@ class OperationLogMiddleware
     {
         $response = $next($request);
         
-        if (auth('api')->check()) {
-            $admin = auth('api')->user();
+        if (auth('admin')->check()) {
+            $admin = auth('admin')->user();
             
             $route = $request->route();
             $action = $route ? $route->getActionName() : '';

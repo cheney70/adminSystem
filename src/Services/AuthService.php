@@ -45,44 +45,44 @@ class AuthService
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'expires_in' => auth('admin')->factory()->getTTL() * 60,
             'user' => $this->getUserInfo($admin),
         ];
     }
 
     public function logout()
     {
-        auth('api')->logout();
+        auth('admin')->logout();
     }
 
     public function refresh()
     {
-        $token = auth('api')->refresh();
-        $admin = auth('api')->user();
+        $token = auth('admin')->refresh();
+        $admin = auth('admin')->user();
 
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'expires_in' => auth('admin')->factory()->getTTL() * 60,
         ];
     }
 
     public function me()
     {
-        $admin = auth('api')->user();
+        $admin = auth('admin')->user();
         return $this->getUserInfo($admin);
     }
 
     public function updateProfile(array $data)
     {
-        $admin = auth('api')->user();
+        $admin = auth('admin')->user();
         $admin->update($data);
         return $this->getUserInfo($admin->fresh());
     }
 
     public function changePassword(array $data)
     {
-        $admin = auth('api')->user();
+        $admin = auth('admin')->user();
         
         if (!Hash::check($data['old_password'], $admin->password)) {
             throw new AuthException('原密码错误');

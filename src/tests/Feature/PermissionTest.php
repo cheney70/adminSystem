@@ -25,7 +25,7 @@ class PermissionTest extends TestCase
 
     public function test_authenticated_admin_can_get_permission_list()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -36,7 +36,7 @@ class PermissionTest extends TestCase
 
     public function test_authenticated_admin_can_create_permission()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'name' => 'New Permission',
@@ -63,7 +63,7 @@ class PermissionTest extends TestCase
             'type' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'name' => 'Updated Permission',
@@ -90,7 +90,7 @@ class PermissionTest extends TestCase
             'type' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,

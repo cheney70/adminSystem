@@ -25,7 +25,7 @@ class MenuTest extends TestCase
 
     public function test_authenticated_admin_can_get_menu_list()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -36,7 +36,7 @@ class MenuTest extends TestCase
 
     public function test_authenticated_admin_can_create_menu()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'title' => 'New Menu',
@@ -65,7 +65,7 @@ class MenuTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $data = [
             'title' => 'Updated Menu',
@@ -94,7 +94,7 @@ class MenuTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -124,7 +124,7 @@ class MenuTest extends TestCase
             'status' => 1,
         ]);
 
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -135,7 +135,7 @@ class MenuTest extends TestCase
 
     public function test_authenticated_admin_can_get_user_menus()
     {
-        $token = auth('api')->login($this->admin);
+        $token = auth('admin')->login($this->admin);
         
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
