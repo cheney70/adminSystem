@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use AntAdmin\AdminSystem\Models\Menu;
+use Cheney\AdminSystem\Models\Menu;
 use Illuminate\Database\Seeder;
 
 class MenuSeeder extends Seeder

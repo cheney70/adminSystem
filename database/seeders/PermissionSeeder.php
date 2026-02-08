@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use AntAdmin\AdminSystem\Models\Permission;
+use Cheney\AdminSystem\Models\Permission;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder

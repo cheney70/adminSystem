@@ -12,9 +12,10 @@
     ],
     "require": {
         "php": "^7.4|^8.0",
+        "darkaonline/l5-swagger": "^8.0",
         "laravel/framework": "^8.0|^9.0|^10.0",
-        "tymon/jwt-auth": "^1.0",
-        "darkaonline/l5-swagger": "^8.0"
+        "phpunit/php-invoker": "*",
+        "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
@@ -23,7 +24,9 @@
     },
     "autoload": {
         "psr-4": {
-            "Cheney\\AdminSystem\\": "src/"
+            "Cheney\\AdminSystem\\": "src/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {

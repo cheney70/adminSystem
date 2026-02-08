@@ -1,293 +1,645 @@
-# Ant Admin System Composer Package
+# Cheney Admin System
 
-Laravel后台管理系统Composer包，提供完整的RBAC权限管理功能。
+基于 Laravel 的后台管理系统 Composer 扩展包，提供完整的用户管理、角色管理、权限管理、菜单管理和操作日志功能。
+
+## 功能特性
+
+- ✅ 用户管理 - 管理员账号的增删改查、角色分配、密码重置、状态管理
+- ✅ 角色管理 - 角色的增删改查、权限分配、用户分配
+- ✅ 权限管理 - 权限的增删改查、权限分组
+- ✅ 菜单管理 - 菜单的增删改查、树形结构展示、权限关联
+- ✅ 操作日志 - 记录用户操作行为、日志查询、统计、导出
+- ✅ JWT 认证 - 基于 JWT 的用户认证机制
+- ✅ RBAC 权限控制 - 基于角色的访问控制
+- ✅ Swagger API 文档 - 自动生成 API 文档
+- ✅ 单元测试 - 完整的单元测试覆盖
+- ✅ Service 层架构 - 业务逻辑封装在 Service 层
+- ✅ CORS 支持 - 跨域请求支持
+
+## 技术栈
+
+- Laravel 8+
+- PHP 7.4+
+- MySQL 5.7+
+- Redis
+- JWT Auth
+- Swagger
 
 ## 安装
 
+### 1. 安装 Composer 包
+
 ```bash
-composer require antadmin/admin-system
+composer require cheney/admin-system
 ```
 
-## 配置
-
-### 1. 发布配置文件
+### 2. 发布配置文件
 
 ```bash
 php artisan vendor:publish --provider="Cheney\AdminSystem\AdminSystemServiceProvider" --tag="admin-config"
 ```
 
-### 2. 发布并运行数据库迁移
+### 3. 发布数据库迁移文件
 
 ```bash
 php artisan vendor:publish --provider="Cheney\AdminSystem\AdminSystemServiceProvider" --tag="admin-migrations"
+```
+
+### 4. 运行数据库迁移
+
+```bash
 php artisan migrate
 ```
 
-### 3. 生成JWT密钥
+### 5. 运行数据填充
+
+```bash
+php artisan db:seed --class=Cheney\\AdminSystem\\Database\\Seeders\\AdminSeeder
+php artisan db:seed --class=Cheney\\AdminSystem\\Database\\Seeders\\RoleSeeder
+php artisan db:seed --class=Cheney\\AdminSystem\\Database\\Seeders\\PermissionSeeder
+php artisan db:seed --class=Cheney\\AdminSystem\\Database\\Seeders\\MenuSeeder
+php artisan db:seed --class=Cheney\\AdminSystem\\Database\\Seeders\\RoleAdminSeeder
+php artisan db:seed --class=Cheney\\AdminSystem\\Database\\Seeders\\PermissionRoleSeeder
+```
+
+### 6. 生成 JWT Secret
 
 ```bash
 php artisan jwt:secret
 ```
 
-## 使用
+### 7. 配置环境变量
 
-### Facade
+在 `.env` 文件中添加以下配置：
 
-包提供了以下Facade，可以直接在代码中使用：
+```env
+JWT_SECRET=your-jwt-secret-key
+JWT_TTL=1440
+JWT_REFRESH_TTL=20160
+```
 
-#### AdminAuth - 认证服务
+## 配置
+
+### 配置文件说明
+
+发布配置文件后，可以在 `config/admin.php` 中进行配置：
+
+```php
+return [
+    // 路由前缀
+    'route_prefix' => 'system',
+
+    // 中间件
+    'middleware' => [
+        'auth' => 'jwt',
+        'permission' => 'permission',
+    ],
+
+    // JWT 配置
+    'jwt' => [
+        'secret' => env('JWT_SECRET'),
+        'ttl' => env('JWT_TTL', 1440),
+        'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+    ],
+
+    // 分页配置
+    'pagination' => [
+        'per_page' => 15,
+    ],
+
+    // 操作日志配置
+    'operation_log' => [
+        'enabled' => true,
+        'except' => [
+            'login',
+            'logout',
+        ],
+    ],
+
+    // 上传配置
+    'upload' => [
+        'disk' => 'public',
+        'path' => 'uploads',
+    ],
+
+    // 默认管理员
+    'default_admin' => [
+        'username' => 'admin',
+        'password' => 'admin123',
+        'name' => '超级管理员',
+    ],
+];
+```
+
+## 使用方法
+
+### 1. 认证
+
+#### 登录
+
+```bash
+POST /api/system/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin123"
+}
+```
+
+响应：
+
+```json
+{
+    "code": 10000,
+    "message": "登录成功",
+    "data": {
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "bearer",
+        "expires_in": 86400,
+        "user": {
+            "id": 1,
+            "username": "admin",
+            "name": "超级管理员",
+            "email": "admin@example.com",
+            "avatar": null
+        }
+    }
+}
+```
+
+#### 获取当前用户信息
+
+```bash
+GET /api/system/auth/me
+Authorization: Bearer {access_token}
+```
+
+#### 退出登录
+
+```bash
+POST /api/system/auth/logout
+Authorization: Bearer {access_token}
+```
+
+#### 刷新 Token
+
+```bash
+POST /api/system/auth/refresh
+Authorization: Bearer {access_token}
+```
+
+### 2. 用户管理
+
+#### 获取用户列表
+
+```bash
+GET /api/system/admins
+Authorization: Bearer {access_token}
+```
+
+#### 创建用户
+
+```bash
+POST /api/system/admins
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "password123",
+    "name": "测试用户",
+    "email": "test@example.com",
+    "phone": "13800138000",
+    "status": 1
+}
+```
+
+#### 更新用户
+
+```bash
+PUT /api/system/admins/{id}
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "name": "更新后的名称",
+    "email": "newemail@example.com"
+}
+```
+
+#### 删除用户
+
+```bash
+DELETE /api/system/admins/{id}
+Authorization: Bearer {access_token}
+```
+
+#### 分配角色
+
+```bash
+POST /api/system/admins/{id}/roles
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "role_ids": [1, 2, 3]
+}
+```
+
+#### 重置密码
+
+```bash
+POST /api/system/admins/{id}/reset-password
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "password": "newpassword123"
+}
+```
+
+#### 修改状态
+
+```bash
+POST /api/system/admins/{id}/change-status
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "status": 0
+}
+```
+
+### 3. 角色管理
+
+#### 获取角色列表
+
+```bash
+GET /api/system/roles
+Authorization: Bearer {access_token}
+```
+
+#### 创建角色
+
+```bash
+POST /api/system/roles
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "name": "编辑",
+    "code": "editor",
+    "description": "内容编辑角色"
+}
+```
+
+#### 分配权限
+
+```bash
+POST /api/system/roles/{id}/permissions
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "permission_ids": [1, 2, 3, 4]
+}
+```
+
+#### 分配用户
+
+```bash
+POST /api/system/roles/{id}/admins
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "admin_ids": [1, 2, 3]
+}
+```
+
+### 4. 权限管理
+
+#### 获取权限列表
+
+```bash
+GET /api/system/permissions
+Authorization: Bearer {access_token}
+```
+
+#### 创建权限
+
+```bash
+POST /api/system/permissions
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "name": "用户管理",
+    "code": "user.manage",
+    "type": "menu",
+    "description": "用户管理权限"
+}
+```
+
+### 5. 菜单管理
+
+#### 获取菜单列表
+
+```bash
+GET /api/system/menus
+Authorization: Bearer {access_token}
+```
+
+#### 获取菜单树
+
+```bash
+GET /api/system/menus/tree
+Authorization: Bearer {access_token}
+```
+
+#### 获取当前用户菜单
+
+```bash
+GET /api/system/user-menus
+Authorization: Bearer {access_token}
+```
+
+#### 创建菜单
+
+```bash
+POST /api/system/menus
+Authorization: Bearer {access_token}
+Content-Type: application/json
+
+{
+    "parent_id": 0,
+    "name": "用户管理",
+    "path": "/user",
+    "icon": "user",
+    "sort": 1,
+    "permission_id": 1
+}
+```
+
+### 6. 操作日志
+
+#### 获取操作日志列表
+
+```bash
+GET /api/system/operation-logs
+Authorization: Bearer {access_token}
+```
+
+#### 获取日志统计
+
+```bash
+GET /api/system/operation-logs/statistics
+Authorization: Bearer {access_token}
+```
+
+#### 导出日志
+
+```bash
+POST /api/system/operation-logs/export
+Authorization: Bearer {access_token}
+```
+
+#### 清空日志
+
+```bash
+POST /api/system/operation-logs/clear
+Authorization: Bearer {access_token}
+```
+
+## Facade 使用
+
+本扩展包提供了多个 Facade 方便调用：
 
 ```php
 use Cheney\AdminSystem\Facades\AdminAuth;
-
-// 用户登录
-$result = AdminAuth::login('username', 'password');
-
-// 获取当前用户
-$user = AdminAuth::me();
-
-// 用户退出
-AdminAuth::logout();
-
-// 刷新Token
-$token = AdminAuth::refresh();
-```
-
-#### AdminUser - 用户服务
-
-```php
 use Cheney\AdminSystem\Facades\AdminUser;
-
-// 获取用户列表
-$users = AdminUser::index(['status' => 1]);
-
-// 创建用户
-$user = AdminUser::store([
-    'username' => 'test',
-    'password' => 'password',
-    'name' => '测试用户',
-]);
-
-// 更新用户
-$user = AdminUser::update($userId, [
-    'name' => '更新后的名称',
-]);
-
-// 删除用户
-AdminUser::destroy($userId);
-
-// 分配角色
-AdminUser::assignRoles($userId, [1, 2, 3]);
-
-// 重置密码
-AdminUser::resetPassword($userId, 'newpassword');
-```
-
-#### AdminRole - 角色服务
-
-```php
 use Cheney\AdminSystem\Facades\AdminRole;
-
-// 获取角色列表
-$roles = AdminRole::index(['status' => 1]);
-
-// 创建角色
-$role = AdminRole::store([
-    'name' => '管理员',
-    'code' => 'admin',
-]);
-
-// 更新角色
-$role = AdminRole::update($roleId, [
-    'description' => '更新描述',
-]);
-
-// 删除角色
-AdminRole::destroy($roleId);
-
-// 分配权限
-AdminRole::assignPermissions($roleId, [1, 2, 3]);
-```
-
-#### AdminPermission - 权限服务
-
-```php
 use Cheney\AdminSystem\Facades\AdminPermission;
-
-// 获取权限列表
-$permissions = AdminPermission::index(['type' => 1]);
-
-// 创建权限
-$permission = AdminPermission::store([
-    'name' => '查看用户',
-    'code' => 'user:list',
-    'type' => 1,
-]);
-
-// 更新权限
-$permission = AdminPermission::update($permissionId, [
-    'description' => '更新描述',
-]);
-
-// 删除权限
-AdminPermission::destroy($permissionId);
-```
-
-#### AdminMenu - 菜单服务
-
-```php
 use Cheney\AdminSystem\Facades\AdminMenu;
-
-// 获取菜单列表（树形结构）
-$menus = AdminMenu::index();
-
-// 创建菜单
-$menu = AdminMenu::store([
-    'title' => '系统管理',
-    'name' => 'System',
-    'parent_id' => 0,
-]);
-
-// 更新菜单
-$menu = AdminMenu::update($menuId, [
-    'title' => '更新标题',
-]);
-
-// 删除菜单
-AdminMenu::destroy($menuId);
-
-// 获取当前用户菜单
-$userMenus = AdminMenu::getUserMenus();
-```
-
-#### AdminOperationLog - 操作日志服务
-
-```php
 use Cheney\AdminSystem\Facades\AdminOperationLog;
 
-// 获取操作日志列表
-$logs = AdminOperationLog::index(['status' => 1]);
+// 认证
+$token = AdminAuth::login($credentials);
+$user = AdminAuth::me();
 
-// 获取日志详情
-$log = AdminOperationLog::show($logId);
+// 用户管理
+$users = AdminUser::getList($params);
+AdminUser::create($data);
 
-// 删除日志
-AdminOperationLog::destroy($logId);
+// 角色管理
+$roles = AdminRole::getList($params);
+AdminRole::create($data);
 
-// 清理旧日志
-AdminOperationLog::clear(30); // 清理30天前的日志
+// 权限管理
+$permissions = AdminPermission::getList($params);
+AdminPermission::create($data);
 
-// 获取统计数据
-$stats = AdminOperationLog::statistics();
+// 菜单管理
+$menus = AdminMenu::getTree();
+AdminMenu::create($data);
+
+// 操作日志
+$logs = AdminOperationLog::getList($params);
+AdminOperationLog::create($data);
 ```
 
-### Helper函数
+## 中间件
 
-包提供了全局辅助函数，可以在任何地方使用：
+### JWT 认证中间件
+
+在路由中使用 JWT 认证：
 
 ```php
-// 获取认证服务实例
-$authService = admin_auth();
-
-// 获取用户服务实例
-$userService = admin_user();
-
-// 获取角色服务实例
-$roleService = admin_role();
-
-// 获取权限服务实例
-$permissionService = admin_permission();
-
-// 获取菜单服务实例
-$menuService = admin_menu();
-
-// 获取操作日志服务实例
-$operationLogService = admin_operation_log();
+Route::middleware('jwt')->group(function () {
+    // 需要认证的路由
+});
 ```
 
-### 模型
+### 权限检查中间件
 
-包中包含以下模型：
+在路由中使用权限检查：
 
-- `Cheney\AdminSystem\Models\User` - 用户模型
-- `Cheney\AdminSystem\Models\Role` - 角色模型
-- `Cheney\AdminSystem\Models\Permission` - 权限模型
-- `Cheney\AdminSystem\Models\Menu` - 菜单模型
-- `Cheney\AdminSystem\Models\OperationLog` - 操作日志模型
+```php
+Route::middleware('permission:user.manage')->group(function () {
+    // 需要 user.manage 权限的路由
+});
+```
 
-### 控制器
+### 操作日志中间件
 
-包中包含以下控制器：
+自动记录用户操作：
 
-- `Cheney\AdminSystem\Http\Controllers\AuthController` - 认证控制器
-- `Cheney\AdminSystem\Http\Controllers\UserController` - 用户管理控制器
-- `Cheney\AdminSystem\Http\Controllers\RoleController` - 角色管理控制器
-- `Cheney\AdminSystem\Http\Controllers\PermissionController` - 权限管理控制器
-- `Cheney\AdminSystem\Http\Controllers\MenuController` - 菜单管理控制器
-- `Cheney\AdminSystem\Http\Controllers\OperationLogController` - 操作日志控制器
+```php
+Route::middleware('operation.log')->group(function () {
+    // 需要记录操作日志的路由
+});
+```
 
-### 中间件
+### CORS 中间件
 
-包中包含以下中间件：
+处理跨域请求：
 
-- `Cheney\AdminSystem\Http\Middleware\JwtMiddleware` - JWT认证中间件
-- `Cheney\AdminSystem\Http\Middleware\PermissionMiddleware` - 权限验证中间件
-- `Cheney\AdminSystem\Http\Middleware\OperationLogMiddleware` - 操作日志中间件
+```php
+Route::middleware('cors')->group(function () {
+    // 需要处理跨域的路由
+});
+```
 
-### 路由
+## 数据库表结构
 
-包会自动注册API路由，默认前缀为 `/api`。
+### admins 表
 
-主要路由：
+管理员表，存储系统管理员信息。
 
-- `POST /api/login` - 用户登录
-- `POST /api/logout` - 用户退出
-- `GET /api/me` - 获取当前用户信息
-- `POST /api/refresh` - 刷新Token
-- `GET /api/users` - 用户列表
-- `POST /api/users` - 创建用户
-- `PUT /api/users/{id}` - 更新用户
-- `DELETE /api/users/{id}` - 删除用户
-- `GET /api/roles` - 角色列表
-- `POST /api/roles` - 创建角色
-- `PUT /api/roles/{id}` - 更新角色
-- `DELETE /api/roles/{id}` - 删除角色
-- `GET /api/permissions` - 权限列表
-- `POST /api/permissions` - 创建权限
-- `PUT /api/permissions/{id}` - 更新权限
-- `DELETE /api/permissions/{id}` - 删除权限
-- `GET /api/menus` - 菜单列表
-- `POST /api/menus` - 创建菜单
-- `PUT /api/menus/{id}` - 更新菜单
-- `DELETE /api/menus/{id}` - 删除菜单
-- `GET /api/operation-logs` - 操作日志列表
-- `GET /api/operation-logs/statistics` - 操作日志统计
+### roles 表
 
-## API文档
+角色表，存储系统角色信息。
 
-安装后访问 `/api/documentation` 查看Swagger API文档。
+### permissions 表
 
-## 配置选项
+权限表，存储系统权限信息。
 
-在 `config/admin.php` 中可以配置：
+### menus 表
 
-- `prefix` - API路由前缀（默认：api）
-- `middleware` - API中间件（默认：['api']）
-- `jwt_secret` - JWT密钥
-- `jwt_ttl` - JWT过期时间（分钟）
+菜单表，存储系统菜单信息。
 
-## 数据库表
+### role_admin 表
 
-包包含以下数据库表：
+角色管理员关联表，多对多关系。
 
-- `users` - 用户表
-- `roles` - 角色表
-- `permissions` - 权限表
-- `menus` - 菜单表
-- `role_user` - 用户角色关联表
-- `permission_role` - 角色权限关联表
-- `operation_logs` - 操作日志表
+### permission_role 表
+
+权限角色关联表，多对多关系。
+
+### operation_logs 表
+
+操作日志表，记录用户操作行为。
+
+## 单元测试
+
+运行单元测试：
+
+```bash
+php artisan test --filter="Cheney\\AdminSystem\\Tests"
+```
+
+测试文件位于 `src/tests/Feature/` 目录下：
+
+- AuthTest.php - 认证功能测试
+- AdminTest.php - 用户管理测试
+- RoleTest.php - 角色管理测试
+- PermissionTest.php - 权限管理测试
+- MenuTest.php - 菜单管理测试
+- OperationLogTest.php - 操作日志测试
+
+## Swagger API 文档
+
+生成 Swagger API 文档：
+
+```bash
+php artisan l5-swagger:generate
+```
+
+访问文档：
+
+```
+http://your-domain.com/api/documentation
+```
+
+## 默认账号
+
+系统初始化后会创建默认管理员账号：
+
+- 用户名：admin
+- 密码：admin123
+
+**⚠️ 请在生产环境中立即修改默认密码！**
+
+## API 响应格式
+
+所有 API 接口统一返回格式：
+
+```json
+{
+    "code": 10000,
+    "message": "操作成功",
+    "data": {}
+}
+```
+
+- code: 10000 表示成功，20000 表示失败
+- message: 操作结果消息
+- data: 返回的数据
+
+## 目录结构
+
+```
+composer-package/
+├── config/              # 配置文件
+│   ├── admin.php       # 管理系统配置
+│   ├── jwt.php         # JWT 配置
+│   └── ...
+├── database/
+│   ├── factories/      # 数据工厂
+│   ├── migrations/     # 数据库迁移
+│   └── seeders/        # 数据填充
+├── routes/
+│   └── api.php         # API 路由
+├── src/
+│   ├── Controllers/    # 控制器
+│   ├── Exceptions/     # 异常类
+│   ├── Facades/        # 门面类
+│   ├── Middleware/     # 中间件
+│   ├── Models/         # 模型
+│   ├── Services/       # 服务层
+│   ├── Traits/         # 特性
+│   ├── tests/          # 单元测试
+│   └── AdminSystemServiceProvider.php
+└── composer.json       # Composer 配置
+```
+
+## 常见问题
+
+### 1. JWT Token 过期
+
+Token 默认有效期为 24 小时，可以使用 refresh 接口刷新 Token。
+
+### 2. 权限验证失败
+
+确保用户已分配相应角色，角色已分配相应权限。
+
+### 3. CORS 错误
+
+确保已在路由中应用 CORS 中间件。
+
+### 4. 操作日志未记录
+
+检查操作日志中间件是否已正确配置，排除不需要记录的路由。
+
+## 版本历史
+
+### 1.0.0 (2024-01-01)
+
+- 初始版本发布
+- 实现用户、角色、权限、菜单、操作日志管理
+- JWT 认证
+- Swagger API 文档
+- 单元测试
 
 ## 许可证
 
 MIT License
+
+## 作者
+
+Cheney
+
+## 支持
+
+如有问题或建议，请提交 Issue 或 Pull Request。

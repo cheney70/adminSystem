@@ -3,7 +3,7 @@
 namespace Cheney\AdminSystem\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Cheney\AdminSystem\Tests\TestCase;
 use Cheney\AdminSystem\Models\Admin;
 
 class AuthTest extends TestCase

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use AntAdmin\AdminSystem\Models\Role;
-use AntAdmin\AdminSystem\Models\Permission;
+use Cheney\AdminSystem\Models\Role;
+use Cheney\AdminSystem\Models\Permission;
 use Illuminate\Database\Seeder;
 
 class PermissionRoleSeeder extends Seeder

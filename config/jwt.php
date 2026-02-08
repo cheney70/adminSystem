@@ -46,6 +46,6 @@ return [
         'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class,
     ],
 
-    'user' => env('JWT_USER_MODEL', 'AntAdmin\\AdminSystem\\Models\\Admin'),
+    'user' => env('JWT_USER_MODEL', 'Cheney\\AdminSystem\\Models\\Admin'),
 
 ];

@@ -1,323 +1,250 @@
-# 后端单元测试说明
+# 单元测试说明
 
-## 测试概述
+## 测试环境要求
 
-本项目包含完整的单元测试和功能测试，覆盖了所有核心功能模块。
+cheney/admin-system 是一个 Laravel Composer 扩展包，单元测试需要在完整的 Laravel 项目环境中运行。
 
-## 测试结构
+## 测试文件位置
 
-```
-tests/
-├── Feature/              # 功能测试
-│   ├── AuthTest.php      # 认证测试
-│   ├── UserTest.php      # 用户管理测试
-│   ├── RoleTest.php      # 角色管理测试
-│   ├── PermissionTest.php # 权限管理测试
-│   ├── MenuTest.php      # 菜单管理测试
-│   └── OperationLogTest.php # 操作日志测试
-└── Unit/                # 单元测试（待添加）
-```
+测试文件位于 `src/tests/Feature/` 目录下：
 
-## 测试覆盖
+- `AuthTest.php` - 认证功能测试
+- `AdminTest.php` - 用户管理测试
+- `RoleTest.php` - 角色管理测试
+- `PermissionTest.php` - 权限管理测试
+- `MenuTest.php` - 菜单管理测试
+- `OperationLogTest.php` - 操作日志测试
 
-### 1. AuthTest - 认证测试
-- ✅ 用户登录（有效凭证）
-- ✅ 用户登录（无效凭证）
-- ✅ 用户登录（禁用账号）
-- ✅ 用户退出
-- ✅ 获取用户信息
-- ✅ 未授权访问保护路由
-- ✅ 刷新Token
+## 在 Laravel 项目中运行测试
 
-### 2. UserTest - 用户管理测试
-- ✅ 获取用户列表
-- ✅ 创建用户
-- ✅ 更新用户
-- ✅ 删除用户
-- ✅ 不能删除自己
-- ✅ 分配角色给用户
-- ✅ 重置用户密码
-- ✅ 未授权访问
-- ✅ 按用户名过滤
-- ✅ 按状态过滤
+### 1. 安装扩展包
 
-### 3. RoleTest - 角色管理测试
-- ✅ 获取角色列表
-- ✅ 创建角色
-- ✅ 更新角色
-- ✅ 删除角色
-- ✅ 不能删除有用户的角色
-- ✅ 分配权限给角色
-- ✅ 按名称过滤
-- ✅ 按状态过滤
-- ✅ 角色编码唯一性验证
+在 Laravel 项目中安装本扩展包：
 
-### 4. PermissionTest - 权限管理测试
-- ✅ 获取权限列表
-- ✅ 创建权限
-- ✅ 更新权限
-- ✅ 删除权限
-- ✅ 不能删除已分配的权限
-- ✅ 按名称过滤
-- ✅ 按类型过滤
-- ✅ 权限编码唯一性验证
-- ✅ 权限类型有效性验证
-
-### 5. MenuTest - 菜单管理测试
-- ✅ 获取菜单列表
-- ✅ 创建菜单
-- ✅ 创建子菜单
-- ✅ 更新菜单
-- ✅ 删除菜单
-- ✅ 不能删除有子菜单的菜单
-- ✅ 按标题过滤
-- ✅ 按状态过滤
-- ✅ 菜单名称唯一性验证
-- ✅ 菜单类型有效性验证
-- ✅ 获取用户菜单
-
-### 6. OperationLogTest - 操作日志测试
-- ✅ 获取日志列表
-- ✅ 获取日志统计
-- ✅ 删除日志
-- ✅ 清理旧日志
-- ✅ 按用户名过滤
-- ✅ 按模块过滤
-- ✅ 按操作类型过滤
-- ✅ 按状态过滤
-- ✅ 按日期范围过滤
-- ✅ 未授权访问
-
-## 运行测试
-
-### 运行所有测试
 ```bash
-cd backend
-php artisan test
+composer require cheney/admin-system
 ```
 
-### 运行特定测试文件
+### 2. 发布配置文件
+
 ```bash
-# 只运行认证测试
-php artisan test --testsuite=Feature --filter=AuthTest
-
-# 只运行用户测试
-php artisan test --testsuite=Feature --filter=UserTest
-
-# 只运行角色测试
-php artisan test --testsuite=Feature --filter=RoleTest
-
-# 只运行权限测试
-php artisan test --testsuite=Feature --filter=PermissionTest
-
-# 只运行菜单测试
-php artisan test --testsuite=Feature --filter=MenuTest
-
-# 只运行日志测试
-php artisan test --testsuite=Feature --filter=OperationLogTest
+php artisan vendor:publish --provider="Cheney\AdminSystem\AdminSystemServiceProvider" --tag="admin-config"
 ```
 
-### 运行特定测试方法
+### 3. 发布数据库迁移文件
+
 ```bash
-# 只测试登录功能
-php artisan test --filter=test_user_can_login_with_valid_credentials
-
-# 只测试创建用户功能
-php artisan test --filter=test_authenticated_user_can_create_user
+php artisan vendor:publish --provider="Cheney\AdminSystem\AdminSystemServiceProvider" --tag="admin-migrations"
 ```
 
-### 生成测试覆盖率报告
+### 4. 运行数据库迁移
+
 ```bash
-php artisan test --coverage
+php artisan migrate
 ```
 
-### 详细输出模式
+### 5. 配置环境变量
+
+在 `.env` 文件中添加：
+
+```env
+JWT_SECRET=your-jwt-secret-key
+```
+
+生成 JWT Secret：
+
 ```bash
-php artisan test --verbose
+php artisan jwt:secret
 ```
 
-### 停止在第一个失败
+### 6. 运行测试
+
+在 Laravel 项目根目录下运行：
+
 ```bash
-php artisan test --stop-on-failure
+php artisan test --filter="Cheney\\AdminSystem\\Tests"
 ```
 
-## 测试数据工厂
+或者运行特定测试：
 
-项目包含以下数据工厂，用于生成测试数据：
+```bash
+# 运行认证测试
+php artisan test --filter="AuthTest"
 
-- **UserFactory** - 生成测试用户
-- **RoleFactory** - 生成测试角色
-- **PermissionFactory** - 生成测试权限
-- **MenuFactory** - 生成测试菜单
-- **OperationLogFactory** - 生成测试操作日志
+# 运行用户管理测试
+php artisan test --filter="AdminTest"
 
-### 使用数据工厂
+# 运行角色管理测试
+php artisan test --filter="RoleTest"
 
-```php
-// 创建单个用户
-$user = User::factory()->create();
+# 运行权限管理测试
+php artisan test --filter="PermissionTest"
 
-// 创建多个用户
-$users = User::factory()->count(10)->create();
+# 运行菜单管理测试
+php artisan test --filter="MenuTest"
 
-// 创建带特定属性的用户
-$user = User::factory()->create([
-    'username' => 'testuser',
-    'status' => 1,
-]);
-
-// 创建关联数据
-$user = User::factory()
-    ->has(Role::factory()->count(2))
-    ->create();
+# 运行操作日志测试
+php artisan test --filter="OperationLogTest"
 ```
 
-## 测试配置
+## 测试覆盖范围
 
-测试使用内存数据库（SQLite），确保测试之间相互独立。
+### AuthTest（认证测试）
 
-配置文件：`phpunit.xml`
+- ✅ 使用有效凭据登录
+- ✅ 使用无效凭据无法登录
+- ✅ 禁用账号无法登录
+- ✅ 已认证用户可以退出登录
+- ✅ 已认证用户可以获取个人信息
+
+### AdminTest（用户管理测试）
+
+- ✅ 已认证用户可以获取用户列表
+- ✅ 已认证用户可以创建用户
+- ✅ 已认证用户可以更新用户
+- ✅ 已认证用户可以删除用户
+- ✅ 已认证用户可以为用户分配角色
+- ✅ 已认证用户可以重置用户密码
+
+### RoleTest（角色管理测试）
+
+- ✅ 已认证用户可以获取角色列表
+- ✅ 已认证用户可以创建角色
+- ✅ 已认证用户可以更新角色
+- ✅ 已认证用户可以删除角色
+- ✅ 已认证用户可以为角色分配权限
+
+### PermissionTest（权限管理测试）
+
+- ✅ 已认证用户可以获取权限列表
+- ✅ 已认证用户可以创建权限
+- ✅ 已认证用户可以更新权限
+- ✅ 已认证用户可以删除权限
+
+### MenuTest（菜单管理测试）
+
+- ✅ 已认证用户可以获取菜单列表
+- ✅ 已认证用户可以创建菜单
+- ✅ 已认证用户可以更新菜单
+- ✅ 已认证用户可以删除菜单
+- ✅ 已认证用户可以获取菜单树
+- ✅ 已认证用户可以获取用户菜单
+
+### OperationLogTest（操作日志测试）
+
+- ✅ 已认证用户可以获取日志列表
+- ✅ 已认证用户可以删除日志
+- ✅ 已认证用户可以获取统计信息
+
+## 测试数据库配置
+
+测试使用内存 SQLite 数据库，配置在 `phpunit.xml` 中：
 
 ```xml
 <php>
-    <env name="APP_ENV" value="testing"/>
     <env name="DB_CONNECTION" value="sqlite"/>
     <env name="DB_DATABASE" value=":memory:"/>
 </php>
 ```
 
-## 编写新测试
+## 测试数据工厂
 
-### 1. 创建测试文件
+测试使用 Laravel 的数据工厂来生成测试数据：
 
-在 `tests/Feature/` 目录下创建新的测试文件：
+- `AdminFactory` - 生成测试用户数据
+- `RoleFactory` - 生成测试角色数据
+- `PermissionFactory` - 生成测试权限数据
+- `MenuFactory` - 生成测试菜单数据
+- `OperationLogFactory` - 生成测试操作日志数据
 
-```php
-<?php
+## 注意事项
 
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-
-class YourFeatureTest extends TestCase
-{
-    use RefreshDatabase;
-
-    public function test_something_works()
-    {
-        $response = $this->get('/api/your-endpoint');
-
-        $response->assertStatus(200);
-    }
-}
-```
-
-### 2. 测试最佳实践
-
-- **使用 RefreshDatabase trait**：确保每个测试都有干净的数据库
-- **测试命名清晰**：使用 `test_` 前缀，描述测试行为
-- **一个测试一个断言**：保持测试简单和专注
-- **使用数据工厂**：避免重复的测试数据创建代码
-- **测试边界情况**：包括成功和失败的场景
-- **使用断言方法**：利用Laravel提供的丰富断言方法
-
-### 3. 常用断言
-
-```php
-// 断言状态码
-$response->assertStatus(200);
-$response->assertStatus(401);
-$response->assertStatus(422);
-
-// 断言JSON结构
-$response->assertJsonStructure([
-    'data',
-    'total',
-]);
-
-// 断言JSON值
-$response->assertJson([
-    'message' => '创建成功',
-]);
-
-// 断言数据库
-$this->assertDatabaseHas('users', [
-    'username' => 'testuser',
-]);
-
-$this->assertDatabaseMissing('users', [
-    'username' => 'testuser',
-]);
-
-// 断言认证
-$this->assertAuthenticated();
-$this->assertGuest();
-```
+1. **环境要求**：测试需要在 Laravel 项目环境中运行，不能在独立的 Composer 包环境中运行
+2. **数据库**：测试使用内存 SQLite 数据库，每次测试都会重置
+3. **认证**：测试需要有效的 JWT Token，测试会自动创建测试用户并生成 Token
+4. **权限**：测试假设用户具有所有权限，实际使用时需要根据角色权限配置
 
 ## 持续集成
 
-### GitHub Actions 示例
+可以在 CI/CD 流程中运行测试：
 
 ```yaml
-name: Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-    
-    - name: Install Dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
-    
-    - name: Run Tests
-      run: php artisan test
+# GitHub Actions 示例
+- name: Run Tests
+  run: |
+    composer install
+    php artisan migrate
+    php artisan test --filter="Cheney\\AdminSystem\\Tests"
 ```
+
+## 测试覆盖率
+
+要生成测试覆盖率报告：
+
+```bash
+php artisan test --coverage --filter="Cheney\\AdminSystem\\Tests"
+```
+
+覆盖率报告将生成在 `storage/framework/testing/coverage` 目录下。
 
 ## 故障排除
 
-### 测试失败常见原因
+### 问题：找不到测试类
 
-1. **数据库迁移问题**
-   ```bash
-   php artisan migrate:fresh
-   ```
+**解决方案**：确保已正确配置 `composer.json` 中的 `autoload-dev` 部分，并运行 `composer dump-autoload`
 
-2. **环境变量问题**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
+### 问题：数据库连接错误
 
-3. **依赖问题**
-   ```bash
-   composer install
-   ```
+**解决方案**：检查 `phpunit.xml` 中的数据库配置，确保使用内存 SQLite 数据库
 
-4. **缓存问题**
-   ```bash
-   php artisan config:clear
-   php artisan cache:clear
-   ```
+### 问题：JWT 认证失败
 
-## 性能优化
+**解决方案**：确保已生成 JWT Secret，并在 `.env` 文件中配置
 
-- 使用 `RefreshDatabase` trait 而不是 `DatabaseMigrations`，前者更快
-- 在测试中使用内存数据库
-- 避免在测试中发送真实的邮件或HTTP请求
-- 使用 Mock 来模拟外部服务
+### 问题：权限验证失败
 
-## 参考资源
+**解决方案**：测试数据中已包含完整的角色和权限配置，确保已运行数据填充
 
-- [Laravel 测试文档](https://laravel.com/docs/testing)
-- [PHPUnit 文档](https://phpunit.de/documentation.html)
-- [Laravel 数据工厂](https://laravel.com/docs/eloquent-factories)
+## 贡献测试
+
+欢迎贡献新的测试用例。请遵循以下规范：
+
+1. 测试方法名以 `test_` 开头
+2. 使用描述性的测试方法名
+3. 每个测试方法只测试一个功能点
+4. 使用断言验证结果
+5. 使用数据工厂生成测试数据
+
+示例：
+
+```php
+public function test_authenticated_admin_can_create_user()
+{
+    $admin = Admin::factory()->create(['status' => 1]);
+    $token = auth('api')->login($admin);
+    
+    $response = $this->withHeaders([
+        'Authorization' => 'Bearer ' . $token,
+    ])->post('/api/system/admins', [
+        'username' => 'testuser',
+        'password' => 'password123',
+        'name' => '测试用户',
+        'status' => 1,
+    ]);
+    
+    $response->assertStatus(200);
+    $response->assertJson([
+        'code' => 10000,
+        'message' => '创建成功',
+    ]);
+    
+    $this->assertDatabaseHas('admins', [
+        'username' => 'testuser',
+        'name' => '测试用户',
+    ]);
+}
+```
+
+## 联系方式
+
+如有测试相关问题，请提交 Issue 或 Pull Request。

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use AntAdmin\AdminSystem\Models\Admin;
+use Cheney\AdminSystem\Models\Admin;
 use Illuminate\Database\Seeder;
 
 class AdminSeeder extends Seeder
