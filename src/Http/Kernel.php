@@ -1,13 +1,13 @@
 <?php
 
-namespace Cheney\adminSystem\Cheney\AdminSystem\Admin\Http;
+namespace Cheney\AdminSystem\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
     protected $middleware = [
-        \Cheney\AdminSystem\Admin\Http\Middleware\HandleCors::class,
+        \Cheney\AdminSystem\Middleware\HandleCors::class,
     ];
 
     protected $middlewareGroups = [
@@ -20,8 +20,9 @@ class Kernel extends HttpKernel
     ];
 
     protected $routeMiddleware = [
-        'cors' => \Cheney\AdminSystem\Admin\Http\Middleware\HandleCors::class,
-        'jwt' => \Cheney\AdminSystem\Admin\Http\Middleware\JwtMiddleware::class,
-        'permission' => \Cheney\AdminSystem\Admin\Http\Middleware\PermissionMiddleware::class,
+        'cors' => \Cheney\AdminSystem\Middleware\HandleCors::class,
+        'jwt' => \Cheney\AdminSystem\Middleware\JwtMiddleware::class,
+        'permission' => \Cheney\AdminSystem\Middleware\PermissionMiddleware::class,
+        'operation.log' => \Cheney\AdminSystem\Middleware\OperationLogMiddleware::class,
     ];
 }

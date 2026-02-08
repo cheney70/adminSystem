@@ -4,16 +4,10 @@ namespace Cheney\AdminSystem\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Database\Factories\RoleFactory;
 
 class Role extends Model
 {
     use HasFactory;
-
-    protected static function newFactory()
-    {
-        return RoleFactory::new();
-    }
 
     protected $fillable = [
         'name',

@@ -4,16 +4,10 @@ namespace Cheney\AdminSystem\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Database\Factories\OperationLogFactory;
 
 class OperationLog extends Model
 {
     use HasFactory;
-
-    protected static function newFactory()
-    {
-        return OperationLogFactory::new();
-    }
 
     protected $fillable = [
         'admin_id',

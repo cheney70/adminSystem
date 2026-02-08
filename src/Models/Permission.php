@@ -4,16 +4,10 @@ namespace Cheney\AdminSystem\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Database\Factories\PermissionFactory;
 
 class Permission extends Model
 {
     use HasFactory;
-
-    protected static function newFactory()
-    {
-        return PermissionFactory::new();
-    }
 
     protected $fillable = [
         'name',

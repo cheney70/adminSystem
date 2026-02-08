@@ -6,7 +6,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Database\Factories\AdminFactory;
 
 /**
  * Admin Model
@@ -19,16 +18,6 @@ use Database\Factories\AdminFactory;
 class Admin extends Authenticatable implements JWTSubject
 {
     use Notifiable, HasFactory;
-
-    /**
-     * 创建模型工厂实例
-     * 
-     * @return \Database\Factories\AdminFactory
-     */
-    protected static function newFactory()
-    {
-        return AdminFactory::new();
-    }
 
     /**
      * 关联的数据表名称
