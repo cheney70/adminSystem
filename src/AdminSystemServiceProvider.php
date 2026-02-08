@@ -24,14 +24,42 @@ class AdminSystemServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/admin.php' => config_path('admin.php'),
         ], 'admin-config');
-        
+
+        $this->publishes([
+            __DIR__ . '/../config/auth.php' => config_path('auth.php'),
+        ], 'admin-auth');
+
+        $this->publishes([
+            __DIR__ . '/../config/jwt.php' => config_path('jwt.php'),
+        ], 'admin-jwt');
+
+        $this->publishes([
+            __DIR__ . '/../config/cors.php' => config_path('cors.php'),
+        ], 'admin-cors');
+
+        $this->publishes([
+            __DIR__ . '/../config/l5-swagger.php' => config_path('l5-swagger.php'),
+        ], 'admin-swagger');
+
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'admin-migrations');
 
+        $this->publishes([
+            __DIR__ . '/../database/factories' => database_path('factories'),
+        ], 'admin-factories');
+
+        $this->publishes([
+            __DIR__ . '/../database/seeders' => database_path('seeders'),
+        ], 'admin-seeders');
+
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'admin');
+
+        $this->registerMiddleware();
     }
 
     public function register()
@@ -41,6 +69,31 @@ class AdminSystemServiceProvider extends ServiceProvider
             'admin'
         );
 
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/auth.php',
+            'auth'
+        );
+
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/jwt.php',
+            'jwt'
+        );
+
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/cors.php',
+            'cors'
+        );
+
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/l5-swagger.php',
+            'l5-swagger'
+        );
+
+        $this->registerServices();
+    }
+
+    protected function registerServices()
+    {
         $this->app->singleton('admin.auth', function ($app) {
             return new AuthService(
                 $app->make(Admin::class)
@@ -79,5 +132,15 @@ class AdminSystemServiceProvider extends ServiceProvider
                 $app->make(OperationLog::class)
             );
         });
+    }
+
+    protected function registerMiddleware()
+    {
+        $router = $this->app['router'];
+
+        $router->aliasMiddleware('jwt', \Cheney\AdminSystem\Middleware\JwtMiddleware::class);
+        $router->aliasMiddleware('permission', \Cheney\AdminSystem\Middleware\PermissionMiddleware::class);
+        $router->aliasMiddleware('operation.log', \Cheney\AdminSystem\Middleware\OperationLogMiddleware::class);
+        $router->aliasMiddleware('cors', \Cheney\AdminSystem\Middleware\HandleCors::class);
     }
 }
