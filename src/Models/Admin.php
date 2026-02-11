@@ -5,6 +5,7 @@ namespace Cheney\AdminSystem\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
@@ -17,7 +18,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  */
 class Admin extends Authenticatable implements JWTSubject
 {
-    use Notifiable, HasFactory;
+    use Notifiable, HasFactory, SoftDeletes;
 
     /**
      * 关联的数据表名称
