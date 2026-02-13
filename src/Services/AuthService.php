@@ -16,6 +16,13 @@ class AuthService
         $this->adminModel = $adminModel;
     }
 
+    /**
+     * 管理员登录
+     * 
+     * @param array $credentials 登录凭证，包含 username（用户名）和 password（密码）
+     * @return array 返回包含 token 和用户信息的数组
+     * @throws AuthException 如果用户不存在、密码错误或账号被禁用，抛出异常
+     */
     public function login(array $credentials)
     {
         $username = $credentials['username'];
@@ -51,11 +58,21 @@ class AuthService
         ];
     }
 
+    /**
+     * 管理员登出
+     * 
+     * @return void
+     */
     public function logout()
     {
         auth('admin')->logout();
     }
 
+    /**
+     * 刷新 token
+     * 
+     * @return array 返回包含新 token 的数组
+     */
     public function refresh()
     {
         $token = auth('admin')->refresh();
@@ -68,12 +85,23 @@ class AuthService
         ];
     }
 
+    /**
+     * 获取当前登录用户信息
+     * 
+     * @return array 返回用户信息数组，包含角色和权限
+     */
     public function me()
     {
         $admin = auth('admin')->user();
         return $this->getUserInfo($admin);
     }
 
+    /**
+     * 更新用户资料
+     * 
+     * @param array $data 用户数据，包含 name（姓名）、email（邮箱）、phone（手机号）、avatar（头像）等
+     * @return array 返回更新后的用户信息
+     */
     public function updateProfile(array $data)
     {
         $admin = auth('admin')->user();
@@ -81,6 +109,13 @@ class AuthService
         return $this->getUserInfo($admin->fresh());
     }
 
+    /**
+     * 修改密码
+     * 
+     * @param array $data 密码数据，包含 old_password（原密码）和 new_password（新密码）
+     * @return void
+     * @throws AuthException 如果原密码错误，抛出异常
+     */
     public function changePassword(array $data)
     {
         $admin = auth('admin')->user();
@@ -94,6 +129,12 @@ class AuthService
         ]);
     }
 
+    /**
+     * 获取用户信息
+     * 
+     * @param Admin $admin 管理员模型实例
+     * @return array 返回用户信息数组，包含角色和权限
+     */
     protected function getUserInfo($admin)
     {
         // 预加载角色和权限关联

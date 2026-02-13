@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheney\AdminSystem\Database\Seeders;
+namespace Database\Seeders;
 
 use Cheney\AdminSystem\Models\Menu;
 use Illuminate\Database\Seeder;
@@ -88,6 +88,63 @@ class MenuSeeder extends Seeder
             'icon' => 'file-text',
             'type' => 2,
             'sort' => 5,
+            'status' => 1,
+            'is_hidden' => false,
+            'keep_alive' => true,
+        ]);
+
+        // 文章管理菜单
+        Menu::create([
+            'title' => '文章管理',
+            'name' => 'Article',
+            'parent_id' => 0,
+            'path' => '/article',
+            'component' => 'Layout',
+            'icon' => 'file-text',
+            'type' => 1,
+            'sort' => 2,
+            'status' => 1,
+            'is_hidden' => false,
+            'keep_alive' => true,
+        ]);
+
+        Menu::create([
+            'title' => '文章列表',
+            'name' => 'ArticleList',
+            'parent_id' => 7,
+            'path' => '/article/index',
+            'component' => 'article/index',
+            'icon' => 'file',
+            'type' => 2,
+            'sort' => 1,
+            'status' => 1,
+            'is_hidden' => false,
+            'keep_alive' => true,
+        ]);
+
+        Menu::create([
+            'title' => '分类管理',
+            'name' => 'CategoryList',
+            'parent_id' => 7,
+            'path' => '/article/categories',
+            'component' => 'article/categories/index',
+            'icon' => 'folder',
+            'type' => 2,
+            'sort' => 2,
+            'status' => 1,
+            'is_hidden' => false,
+            'keep_alive' => true,
+        ]);
+
+        Menu::create([
+            'title' => '标签管理',
+            'name' => 'TagList',
+            'parent_id' => 7,
+            'path' => '/article/tags',
+            'component' => 'article/tags/index',
+            'icon' => 'tag',
+            'type' => 2,
+            'sort' => 3,
             'status' => 1,
             'is_hidden' => false,
             'keep_alive' => true,

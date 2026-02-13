@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheney\AdminSystem\Database\Seeders;
+namespace Database\Seeders;
 
 use Cheney\AdminSystem\Models\Role;
 use Cheney\AdminSystem\Models\Permission;

@@ -8,6 +8,9 @@ use Cheney\AdminSystem\Controllers\PermissionController;
 use Cheney\AdminSystem\Controllers\MenuController;
 use Cheney\AdminSystem\Controllers\OperationLogController;
 use Cheney\AdminSystem\Controllers\UploadController;
+use Cheney\AdminSystem\Controllers\ArticleController;
+use Cheney\AdminSystem\Controllers\ArticleCategoryController;
+use Cheney\AdminSystem\Controllers\ArticleTagController;
 
 Route::prefix('api/system')->middleware('cors')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -41,5 +44,21 @@ Route::prefix('api/system')->middleware('cors')->group(function () {
         Route::get('operation-logs/export', [OperationLogController::class, 'export']);
 
         Route::post('upload', [UploadController::class, 'upload']);
+
+        // 文章管理
+        Route::prefix('articles')->group(function () {
+            Route::post('{id}/publish', [ArticleController::class, 'publish']);
+            Route::post('{id}/unpublish', [ArticleController::class, 'unpublish']);
+        });
+        Route::apiResource('articles', ArticleController::class);
+
+        // 文章分类管理
+        Route::prefix('article-categories')->group(function () {
+            Route::get('tree', [ArticleCategoryController::class, 'tree']);
+        });
+        Route::apiResource('article-categories', ArticleCategoryController::class);
+
+        // 文章标签管理
+        Route::apiResource('article-tags', ArticleTagController::class);
     });
 });

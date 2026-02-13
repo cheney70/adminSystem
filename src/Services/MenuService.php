@@ -17,6 +17,12 @@ class MenuService
         $this->permissionModel = $permissionModel;
     }
 
+    /**
+     * 获取菜单列表
+     * 
+     * @param array $params 查询参数，支持 title（标题）和 status（状态）
+     * @return array 返回树形结构的菜单列表
+     */
     public function index(array $params = [])
     {
         $query = $this->menuModel->query();
@@ -34,16 +40,35 @@ class MenuService
         return $this->buildTree($menus->toArray());
     }
 
+    /**
+     * 获取菜单详情
+     * 
+     * @param int $id 菜单ID
+     * @return Menu 返回菜单模型实例
+     */
     public function show(int $id)
     {
         return $this->menuModel->findOrFail($id);
     }
 
+    /**
+     * 创建菜单
+     * 
+     * @param array $data 菜单数据
+     * @return Menu 返回创建的菜单模型实例
+     */
     public function store(array $data): Menu
     {
         return $this->menuModel->create($data);
     }
 
+    /**
+     * 更新菜单
+     * 
+     * @param int $id 菜单ID
+     * @param array $data 菜单数据
+     * @return Menu 返回更新后的菜单模型实例
+     */
     public function update(int $id, array $data): Menu
     {
         $menu = $this->menuModel->findOrFail($id);
@@ -51,6 +76,13 @@ class MenuService
         return $menu->fresh();
     }
 
+    /**
+     * 删除菜单
+     * 
+     * @param int $id 菜单ID
+     * @return bool 删除成功返回true，失败返回false
+     * @throws \Exception 如果菜单下有子菜单，抛出异常
+     */
     public function destroy(int $id): bool
     {
         $menu = $this->menuModel->findOrFail($id);
@@ -62,12 +94,24 @@ class MenuService
         return $menu->delete();
     }
 
+    /**
+     * 获取菜单树
+     * 
+     * @return array 返回树形结构的菜单列表
+     */
     public function tree()
     {
         $menus = $this->menuModel->orderBy('sort')->get();
         return $this->buildTree($menus->toArray());
     }
 
+    /**
+     * 获取当前用户的菜单列表
+     * 
+     * @param mixed $admin 管理员用户对象，如果为null则从认证中获取
+     * @return array 返回树形结构的用户菜单列表
+     * @throws \Exception 如果用户未登录或token已过期，抛出异常
+     */
     public function userMenus($admin = null)
     {
         if ($admin === null) {
@@ -78,77 +122,80 @@ class MenuService
             throw new \Exception('用户未登录或token已过期');
         }
         
-        // 预加载角色和权限关联
-        $admin = $admin->load(['roles', 'roles.permissions']);
+        // 使用关联关系直接获取用户有权限的菜单ID
+        $menuIds = $this->permissionModel->whereHas('roles', function ($query) use ($admin) {
+            $query->whereHas('admins', function ($query) use ($admin) {
+                $query->where('admins.id', $admin->id);
+            });
+        })
+        ->whereNotNull('menu_id')
+        ->pluck('menu_id')
+        ->unique()
+        ->filter();
         
-        $permissionCodes = [];
-        foreach ($admin->roles as $role) {
-            foreach ($role->permissions as $permission) {
-                $permissionCodes[] = $permission->code;
-            }
-        }
+        // 获取所有菜单（包括父菜单）
+        $menus = $this->menuModel->where(function ($query) use ($menuIds) {
+            // 直接有权限的菜单
+            $query->whereIn('id', $menuIds)
+                  // 或者是有权限菜单的父菜单
+                  ->orWhereIn('id', function ($subQuery) use ($menuIds) {
+                      $subQuery->select('parent_id')
+                               ->from('menus')
+                               ->whereIn('id', $menuIds)
+                               ->where('parent_id', '>', 0);
+                  });
+        })
+        ->active()
+        ->notHidden()
+        ->orderBy('sort')
+        ->get();
         
-        $permissionCodes = array_unique($permissionCodes);
-        
-        $menuIds = $this->permissionModel->whereIn('code', $permissionCodes)
-            ->whereNotNull('menu_id')
-            ->pluck('menu_id')
-            ->unique()
-            ->filter();
-        
-        $menus = $this->menuModel->whereIn('id', $menuIds)
-            ->active()
-            ->notHidden()
-            ->menuType()
-            ->orderBy('sort')
-            ->get();
-        
-        $menuIds = $menus->pluck('id')->toArray();
-        
-        $allMenuIds = $menuIds;
-        
-        foreach ($menuIds as $menuId) {
-            $parentIds = $this->getAllParentMenuIds($menuId);
-            $allMenuIds = array_merge($allMenuIds, $parentIds);
-        }
-        
-        $allMenuIds = array_unique($allMenuIds);
-        
-        $allMenus = $this->menuModel->whereIn('id', $allMenuIds)
-            ->active()
-            ->notHidden()
-            ->orderBy('sort')
-            ->get();
-            
-        return $this->buildTree($allMenus->toArray());
+        // 使用 Eloquent 关联关系构建树形结构
+        return $this->buildTreeWithRelations($menus);
     }
     
-    protected function getAllParentMenuIds($menuId, &$parentIds = [])
+    /**
+     * 使用 Eloquent 关联关系构建菜单树
+     * 
+     * @param mixed $menus 菜单集合
+     * @return array 返回树形结构的菜单列表
+     */
+    protected function buildTreeWithRelations($menus)
     {
-        $menu = $this->menuModel->find($menuId);
+        // 构建菜单ID到菜单对象的映射
+        $menuMap = $menus->keyBy('id');
         
-        if ($menu && $menu->parent_id > 0) {
-            $parentIds[] = $menu->parent_id;
-            $this->getAllParentMenuIds($menu->parent_id, $parentIds);
-        }
-        
-        return $parentIds;
+        // 使用 filter 和 map 方法构建树形结构
+        return $menuMap->filter(function ($menu) {
+            return $menu->parent_id == 0;
+        })->map(function ($menu) use ($menuMap) {
+            return $this->buildMenuTree($menu, $menuMap);
+        })->values()->toArray();
     }
-
-    protected function buildTree(array $elements, $parentId = 0)
+    
+    /**
+     * 递归构建菜单树
+     * 
+     * @param Menu $menu 当前菜单对象
+     * @param mixed $menuMap 菜单ID到菜单对象的映射
+     * @return array 返回包含子菜单的菜单数组
+     */
+    protected function buildMenuTree($menu, $menuMap)
     {
-        $branch = [];
-
-        foreach ($elements as $element) {
-            if ($element['parent_id'] == $parentId) {
-                $children = $this->buildTree($elements, $element['id']);
-                if ($children) {
-                    $element['children'] = $children;
-                }
-                $branch[] = $element;
-            }
+        $menuArray = $menu->toArray();
+        
+        // 使用 Eloquent 关联关系获取子菜单
+        $children = $menuMap->filter(function ($child) use ($menu) {
+            return $child->parent_id == $menu->id;
+        });
+        
+        if ($children->isNotEmpty()) {
+            // 使用 map 方法递归构建子菜单
+            $menuArray['children'] = $children->map(function ($child) use ($menuMap) {
+                return $this->buildMenuTree($child, $menuMap);
+            })->values()->toArray();
         }
-
-        return $branch;
+        
+        return $menuArray;
     }
 }

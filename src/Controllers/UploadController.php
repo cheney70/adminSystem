@@ -22,7 +22,7 @@ class UploadController extends Controller
             $path = $file->store('avatars', 'public');
             
             return $this->success([
-                'url' => Storage::url($path),
+                'url' => env('APP_URL').Storage::url($path),
                 'path' => $path
             ], '上传成功');
         } catch (\Exception $e) {

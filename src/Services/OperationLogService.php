@@ -15,6 +15,12 @@ class OperationLogService
         $this->operationLogModel = $operationLogModel;
     }
 
+    /**
+     * 获取操作日志列表
+     * 
+     * @param array $params 查询参数，支持 username（用户名）、module（模块）、action（操作）、status（状态）、start_date（开始日期）、end_date（结束日期）、per_page（每页数量）
+     * @return LengthAwarePaginator 返回分页的操作日志列表
+     */
     public function index(array $params = []): LengthAwarePaginator
     {
         $query = $this->operationLogModel->query();
@@ -43,22 +49,45 @@ class OperationLogService
         return $query->with('admin')->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
+    /**
+     * 获取操作日志详情
+     * 
+     * @param int $id 操作日志ID
+     * @return OperationLog 返回操作日志模型实例，包含管理员关联数据
+     */
     public function show(int $id)
     {
         return $this->operationLogModel->with('admin')->findOrFail($id);
     }
 
+    /**
+     * 删除操作日志
+     * 
+     * @param int $id 操作日志ID
+     * @return bool 删除成功返回true，失败返回false
+     */
     public function destroy(int $id): bool
     {
         $log = $this->operationLogModel->findOrFail($id);
         return $log->delete();
     }
 
+    /**
+     * 清理指定天数前的操作日志
+     * 
+     * @param int $days 天数，默认为30天
+     * @return int 返回删除的记录数
+     */
     public function clear(int $days = 30): int
     {
         return $this->operationLogModel->where('created_at', '<', now()->subDays($days))->delete();
     }
 
+    /**
+     * 获取操作日志统计信息
+     * 
+     * @return array 返回统计信息数组，包含总数、成功数、失败数、模块统计、操作统计
+     */
     public function statistics(): array
     {
         $total = $this->operationLogModel->count();
@@ -86,6 +115,12 @@ class OperationLogService
         ];
     }
 
+    /**
+     * 导出操作日志为CSV文件
+     * 
+     * @param array $params 查询参数，支持 start_date（开始日期）、end_date（结束日期）
+     * @return string 返回CSV文件路径
+     */
     public function export(array $params = [])
     {
         $query = $this->operationLogModel->query();

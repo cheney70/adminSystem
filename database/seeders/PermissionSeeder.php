@@ -1,6 +1,6 @@
 <?php
 
-namespace Cheney\AdminSystem\Database\Seeders;
+namespace Database\Seeders;
 
 use Cheney\AdminSystem\Models\Permission;
 use Illuminate\Database\Seeder;
@@ -150,6 +150,105 @@ class PermissionSeeder extends Seeder
             'code' => 'log:delete',
             'description' => '删除日志',
             'menu_id' => 6,
+            'type' => 2,
+        ]);
+
+        // 文章管理权限
+        Permission::create([
+            'name' => '文章列表',
+            'code' => 'article:list',
+            'description' => '查看文章列表',
+            'menu_id' => 7,
+            'type' => 1,
+        ]);
+
+        Permission::create([
+            'name' => '创建文章',
+            'code' => 'article:create',
+            'description' => '创建文章',
+            'menu_id' => 7,
+            'type' => 2,
+        ]);
+
+        Permission::create([
+            'name' => '编辑文章',
+            'code' => 'article:update',
+            'description' => '编辑文章',
+            'menu_id' => 7,
+            'type' => 2,
+        ]);
+
+        Permission::create([
+            'name' => '删除文章',
+            'code' => 'article:delete',
+            'description' => '删除文章',
+            'menu_id' => 7,
+            'type' => 2,
+        ]);
+
+        // 分类管理权限
+        Permission::create([
+            'name' => '分类列表',
+            'code' => 'category:list',
+            'description' => '查看分类列表',
+            'menu_id' => 8,
+            'type' => 1,
+        ]);
+
+        Permission::create([
+            'name' => '创建分类',
+            'code' => 'category:create',
+            'description' => '创建分类',
+            'menu_id' => 8,
+            'type' => 2,
+        ]);
+
+        Permission::create([
+            'name' => '编辑分类',
+            'code' => 'category:update',
+            'description' => '编辑分类',
+            'menu_id' => 8,
+            'type' => 2,
+        ]);
+
+        Permission::create([
+            'name' => '删除分类',
+            'code' => 'category:delete',
+            'description' => '删除分类',
+            'menu_id' => 8,
+            'type' => 2,
+        ]);
+
+        // 标签管理权限
+        Permission::create([
+            'name' => '标签列表',
+            'code' => 'tag:list',
+            'description' => '查看标签列表',
+            'menu_id' => 9,
+            'type' => 1,
+        ]);
+
+        Permission::create([
+            'name' => '创建标签',
+            'code' => 'tag:create',
+            'description' => '创建标签',
+            'menu_id' => 9,
+            'type' => 2,
+        ]);
+
+        Permission::create([
+            'name' => '编辑标签',
+            'code' => 'tag:update',
+            'description' => '编辑标签',
+            'menu_id' => 9,
+            'type' => 2,
+        ]);
+
+        Permission::create([
+            'name' => '删除标签',
+            'code' => 'tag:delete',
+            'description' => '删除标签',
+            'menu_id' => 9,
             'type' => 2,
         ]);
     }
